@@ -1,0 +1,34 @@
+version: "3.9"
+services:
+  swag:
+    image: ofersadan85/fcms-swag:edge
+    container_name: swag
+    restart: always
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - swag:/config
+    environment:
+      - PUID=2000
+      - PGID=2000
+      - TZ=Asia/Jerusalem
+      - URL=ysadan.co.il
+      - SUBDOMAINS=fcms,dev
+      - ONLY_SUBDOMAINS=true
+      - EMAIL=admin@ysadan.co.il
+      - VALIDATION=http  # Required: certbot validation method
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - web
+      - development
+      - production
+
+volumes:
+  swag:
+
+networks:
+  web:
+  development:
+  production:

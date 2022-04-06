@@ -1,0 +1,153 @@
+---
+- hosts: fcms
+  become: True
+  # gather_facts: False
+  vars:
+    domain_name: ysadan.co.il
+    server_basename: fcms
+    stack_username: fcms
+    stack_uid: 2000
+    deployment_username: ubuntu
+    origin_repo: https://github.com/ofersadan85/fcms5.git
+
+  tasks:
+    - name: Update packages
+      apt:
+        autoclean: yes
+        autoremove: yes
+        update_cache: yes
+        upgrade: dist
+
+    - name: Set hostname
+      hostname:
+        name: "{{ server_basename }}01.{{ domain_name }}"
+
+    - name: Set timezone
+      community.general.timezone:
+        name: Asia/Jerusalem
+
+    - name: Create group for the stack
+      group:
+        name: "{{ stack_username }}"
+        gid: {{ stack_uid }}
+
+    - name: Create user for the stack
+      user:
+        group: "{{ stack_username }}"
+        name: "{{ stack_username }}"
+        uid: {{ stack_uid }}
+      register: stack_user
+
+    - name: Ensure default ubuntu user as ansible_user
+      user:
+        name: "{{ deployment_username}}"
+        group: "{{ deployment_username}}"
+        state: present
+      register: ansible_user
+
+    - name: Ensure git repo is updated on ansible_user
+      git:
+        repo: "{{ origin_repo }}"
+        dest: "{{ ansible_user.home }}/fcms5"
+        clone: yes
+        update: yes
+        depth: 1
+        force: yes
+        recursive: no
+        # Optionally verify commit gpg signatures with "verify_commit: yes"
+
+    - name: Ensure git repo owned by ansible_user
+      file:
+        path: "{{ ansible_user.home }}/fcms5"
+        owner: "{{ ansible_user.name }}"
+        group: "{{ ansible_user.group }}"
+        state: directory
+        mode: u=rwX,g=rX,o=rX  # 755 for folders 644 for files
+        recurse: yes
+      changed_when: false  # Do not consider this a change
+
+    - name: Copy deploy_ansible.sh as deploy.sh
+      copy:
+        src: deploy_ansible.sh
+        dest: "{{ ansible_user.home }}/deploy.sh"
+        owner: "{{ ansible_user.name }}"
+        group: "{{ ansible_user.group }}"
+        mode: 0440
+
+    - name: Harden ssh settings
+      include_role: 
+        name: ofersadan85.hardssh
+
+    - name: Install pip & docker packages
+      include_role:
+        name: geerlingguy.pip
+      vars:
+        pip_install_packages:
+          - docker
+          - docker-compose
+
+    - name: Install docker
+      include_role:
+        name: geerlingguy.docker
+      vars:
+        docker_package_state: latest
+        docker_install_compose: false
+        docker_users: 
+          - "{{ stack_user.name }}"
+
+    - name: Install latest docker-compose
+      get_url:
+        url: https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64
+        dest: /usr/libexec/docker/cli-plugins/docker-compose
+        mode: 0755
+
+    - name: Ensure latest deployment files
+      copy:
+        src: "{{ item }}"
+        dest: "{{ stack_user.home }}/{{ item }}"
+        owner: "{{ stack_user.name }}"
+        group: "{{ stack_user.group }}"
+        mode: 0440
+      loop:
+        - docker-compose.yml
+        - deploy.sh
+
+    - name: Ensure protected files permissions
+      file:
+        path: "{{ stack_user.home }}/{{ item }}"
+        owner: "{{ stack_user.name }}"
+        group: "{{ stack_user.group }}"
+        mode: 0640  # Read/write for owner, read only for group
+        state: touch
+      loop:
+        - .env
+        - PRODUCTION.env
+        - DEVELOPMENT.env
+        - google_cred.json
+      changed_when: false  # Do not consider this a change
+
+    - name: Set up deployment key
+      ansible.posix.authorized_key:
+        user: "{{ item }}"
+        exclusive: yes
+        key: "{{ lookup('file', 'deploy_key.pub') }}"
+        key_options: 'command="sh ~/deploy.sh"'
+      loop:
+        - "{{ stack_user.name }}"
+        - "{{ ansible_user.name }}"
+
+    - name: Run deployment script
+      # This replaces the previous method of running docker compose directly
+      shell:
+        chdir: "{{ stack_user.home }}"
+        cmd: "sudo -u {{ stack_user.name }} sh {{ stack_user.home }}/deploy.sh"
+        warn: no  # Disable sudo warning
+      changed_when: false  # Do not consider this a change
+
+    - name: Cronjob for deployment
+      cron:
+        name: "{{ stack_user.name }}-deploy"
+        user: "{{ stack_user.name }}"
+        minute: "*/15" # Every 15 minutes
+        job: "sh {{ stack_user.home }}/deploy.sh"
+        state: present
