@@ -18,7 +18,7 @@ on:
       - "swag/**"
 
 env:
-  DOCKER_IMAGE_NAME: ${{ github.event.repository.owner }}/${{ github.event.repository.name }}-swag
+  DOCKER_IMAGE_NAME: ofersadan85/${{ github.event.repository.name }}-swag
 
 jobs:
   build:
