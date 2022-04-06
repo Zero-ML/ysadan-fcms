@@ -1,0 +1,12 @@
+
+{% block header %}
+  <h1>{% block title %}Case Files{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+{% for blob in case_files %}
+  <p>
+    <a href="{{ blob.path }}">{{ blob.name }}</a>
+  </p>
+{% endfor %}
+{% endblock %}

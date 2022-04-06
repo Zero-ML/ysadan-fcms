@@ -1,0 +1,8 @@
+
+{% block header %}
+  <h1>{% block title %}Case Details{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<p>{{case_obj['case_key']}} - {{case_obj['case_name']}}</p>
+{% endblock %}
