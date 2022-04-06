@@ -1,2 +1,2 @@
-[test]
+[fcms]
 localhost ansible_connection=local

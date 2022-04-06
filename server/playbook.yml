@@ -29,13 +29,13 @@
     - name: Create group for the stack
       group:
         name: "{{ stack_username }}"
-        gid: {{ stack_uid }}
+        gid: "{{ stack_uid }}"
 
     - name: Create user for the stack
       user:
         group: "{{ stack_username }}"
         name: "{{ stack_username }}"
-        uid: {{ stack_uid }}
+        uid: "{{ stack_uid }}"
       register: stack_user
 
     - name: Ensure default ubuntu user as ansible_user
