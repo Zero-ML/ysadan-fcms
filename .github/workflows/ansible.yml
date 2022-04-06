@@ -19,5 +19,5 @@ jobs:
         with:
           host: ${{ secrets.SSH_DEPLOYMENT_HOST }}
           port: ${{ secrets.SSH_DEPLOYMENT_PORT }}
-          username: ubuntu
+          username: ${{ secrets.SSH_DEPLOYMENT_ANSIBLE_USER }}
           key: ${{ secrets.SSH_DEPLOYMENT_KEY }}
