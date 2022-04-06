@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   swag:
-    image: ofersadan85/fcms-swag:edge
+    image: ofersadan85/ysadan-fcms-swag:edge
     container_name: swag
     restart: always
     cap_add:
