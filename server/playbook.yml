@@ -8,7 +8,7 @@
     stack_username: fcms
     stack_uid: 2000
     deployment_username: ubuntu
-    origin_repo: https://github.com/ofersadan85/fcms5.git
+    # origin_repo: https://github.com/Zero-ML/ysadan-fcms.git
 
   tasks:
     - name: Update packages
@@ -45,26 +45,26 @@
         state: present
       register: ansible_user
 
-    - name: Ensure git repo is updated on ansible_user
-      git:
-        repo: "{{ origin_repo }}"
-        dest: "{{ ansible_user.home }}/fcms5"
-        clone: yes
-        update: yes
-        depth: 1
-        force: yes
-        recursive: no
-        # Optionally verify commit gpg signatures with "verify_commit: yes"
+    # - name: Ensure git repo is updated on ansible_user
+    #   git:
+    #     repo: "{{ origin_repo }}"
+    #     dest: "{{ ansible_user.home }}/ysadan-fcms"
+    #     clone: yes
+    #     update: yes
+    #     depth: 1
+    #     force: yes
+    #     recursive: no
+    #     # Optionally verify commit gpg signatures with "verify_commit: yes"
 
-    - name: Ensure git repo owned by ansible_user
-      file:
-        path: "{{ ansible_user.home }}/fcms5"
-        owner: "{{ ansible_user.name }}"
-        group: "{{ ansible_user.group }}"
-        state: directory
-        mode: u=rwX,g=rX,o=rX  # 755 for folders 644 for files
-        recurse: yes
-      changed_when: false  # Do not consider this a change
+    # - name: Ensure git repo owned by ansible_user
+    #   file:
+    #     path: "{{ ansible_user.home }}/fcms5"
+    #     owner: "{{ ansible_user.name }}"
+    #     group: "{{ ansible_user.group }}"
+    #     state: directory
+    #     mode: u=rwX,g=rX,o=rX  # 755 for folders 644 for files
+    #     recurse: yes
+    #   changed_when: false  # Do not consider this a change
 
     - name: Copy deploy_ansible.sh as deploy.sh
       copy:
@@ -136,18 +136,18 @@
         - "{{ stack_user.name }}"
         - "{{ ansible_user.name }}"
 
-    - name: Run deployment script
-      # This replaces the previous method of running docker compose directly
-      shell:
-        chdir: "{{ stack_user.home }}"
-        cmd: "sudo -u {{ stack_user.name }} sh {{ stack_user.home }}/deploy.sh"
-        warn: no  # Disable sudo warning
-      changed_when: false  # Do not consider this a change
+    # - name: Run deployment script
+    #   # This replaces the previous method of running docker compose directly
+    #   shell:
+    #     chdir: "{{ stack_user.home }}"
+    #     cmd: "sudo -u {{ stack_user.name }} sh {{ stack_user.home }}/deploy.sh"
+    #     warn: no  # Disable sudo warning
+    #   changed_when: false  # Do not consider this a change
 
-    - name: Cronjob for deployment
-      cron:
-        name: "{{ stack_user.name }}-deploy"
-        user: "{{ stack_user.name }}"
-        minute: "*/15" # Every 15 minutes
-        job: "sh {{ stack_user.home }}/deploy.sh"
-        state: present
+    # - name: Cronjob for deployment
+    #   cron:
+    #     name: "{{ stack_user.name }}-deploy"
+    #     user: "{{ stack_user.name }}"
+    #     minute: "*/15" # Every 15 minutes
+    #     job: "sh {{ stack_user.home }}/deploy.sh"
+    #     state: present
