@@ -13,7 +13,7 @@ services:
       - PGID=2000
       - TZ=Asia/Jerusalem
       - URL=ysadan.co.il
-      - SUBDOMAINS=fcms,dev
+      - SUBDOMAINS=fcms,fcms-dev
       - ONLY_SUBDOMAINS=true
       - EMAIL=admin@ysadan.co.il
       - VALIDATION=http  # Required: certbot validation method
