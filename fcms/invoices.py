@@ -1,13 +1,11 @@
 import re
 import i4u
-import urllib
 import dotenv
 import logging
 
 from enum import IntEnum
-from pathlib import Path
 from datetime import datetime
-from google.cloud import storage
+
 from pydantic import BaseModel
 
 from .common import get_db, get_env_var
@@ -82,18 +80,3 @@ def filename_to_invoice_key(filename: str) -> bool | int:
         invoice_key = re.findall(r"(?<!\d)\d{5}(?!\d)", filename)
         return int(invoice_key[0])
     return False
-
-
-def register_all_invoices():
-    registered = get_registered_invoices()
-    bucket = storage.Client().bucket("ysadan-cases")
-    for blob in bucket.list_blobs():
-        try:
-            blob_path = Path(urllib.parse.unquote(blob.path))
-            invoice_key = filename_to_invoice_key(blob_path.name)
-            case_key = int(blob_path.parent.name.split()[0])
-        except (ValueError, IndexError):
-            pass
-        else:
-            if invoice_key and case_key and invoice_key not in registered:
-                Invoice(case_key=case_key, invoice_key=invoice_key).register()

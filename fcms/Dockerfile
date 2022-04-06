@@ -5,8 +5,8 @@ ARG APPDIR=/app
 
 # These env variables should be provided in deployment
 ENV MONGODB_URI=
+ENV CLOUD_BUCKET=
 ENV GOOGLE_APPLICATION_CREDENTIALS=${APPDIR}/google_cred.json
-ENV GOOGLE_CLOUD_BUCKET=
 
 # i4u settings
 ENV I4U_USER=
