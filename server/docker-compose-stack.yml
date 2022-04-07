@@ -1,0 +1,24 @@
+version: "3.9"
+services:
+  redis:
+    image: redis:alpine
+    volumes:
+      - cases:/mnt/cases
+    networks:
+      - current_stack_network
+
+volumes:
+  cases:
+    driver: rclone
+    driver_opts:
+      remote: ":gcs:/${GCS_BUCKET_NAME}"
+      gcs_location: europe-west1
+      gcs_bucket_policy_only: "true"
+      gcs_service_account_credentials: ${GOOGLE_SERVICE_ACCOUNT_CREDENTIALS}
+      vfs_cache_mode: full
+      allow_other: "true"
+
+networks:
+  current_stack_network:
+    external: true
+    name: fcms_${DEPLOYMENT_TYPE}
