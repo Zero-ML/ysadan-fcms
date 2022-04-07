@@ -123,6 +123,7 @@
         mode: 0440
       loop:
         - docker-compose.yml
+        - docker-compose-stack.yml
         - deploy.sh
 
     - name: Ensure protected files permissions
@@ -133,10 +134,8 @@
         mode: 0640  # Read/write for owner, read only for group
         state: touch
       loop:
-        - .env
-        - PRODUCTION.env
-        - DEVELOPMENT.env
-        - google_cred.json
+        - production.env
+        - development.env
       changed_when: false  # Do not consider this a change
 
     - name: Set up deployment key
