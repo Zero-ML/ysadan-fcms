@@ -156,11 +156,3 @@
         cmd: "sudo -u {{ stack_user.name }} sh {{ stack_user.home }}/deploy.sh"
         warn: no  # Disable sudo warning
       changed_when: false  # Do not consider this a change
-
-    - name: Cronjob for deployment
-      cron:
-        name: "{{ stack_user.name }}-deploy"
-        user: "{{ stack_user.name }}"
-        minute: "*/15" # Every 15 minutes
-        job: "sh {{ stack_user.home }}/deploy.sh"
-        state: present
