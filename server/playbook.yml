@@ -18,6 +18,15 @@
         update_cache: yes
         upgrade: dist
 
+    - name: Install packages
+      apt: 
+        pkg:
+          - fuse
+          - git
+          - jq
+          - rclone
+          - zsh
+
     - name: Set hostname
       hostname:
         name: "{{ server_basename }}01.{{ domain_name }}"
