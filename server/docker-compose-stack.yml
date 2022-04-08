@@ -9,7 +9,7 @@ services:
 
 volumes:
   cases:
-    driver: rclone
+    driver: rclone:latest
     driver_opts:
       remote: ":gcs:/${GCS_BUCKET_NAME}"
       gcs_location: europe-west1
