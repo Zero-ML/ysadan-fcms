@@ -35,25 +35,5 @@ server {
 
 }
 
-# Server block for development deployments
-server {
-    listen 443 ssl;
-    listen [::]:443 ssl;
-
-    server_name dev.*;
-
-    # This will tell search engines not to index any paths (development)
-    add_header X-Robots-Tag "noindex, nofollow, nosnippet, noarchive";
-
-    include /config/nginx/ssl.conf;
-    client_max_body_size 0;
-
-    # enable for Authelia
-    include /config/nginx/authelia-server.conf;
-
-    include /config/nginx/subfolders.conf;
-
-}
-
 # enable proxy cache for auth
 proxy_cache_path cache/ keys_zone=auth_cache:10m;
