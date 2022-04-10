@@ -3,6 +3,12 @@
 
 error_page 502 /502.html;
 
+map $http_host $deployment {
+    hostnames;
+    default "production_";
+    fcms-dev.* "development_";
+}
+
 # redirect all traffic to https
 server {
     listen 80 default_server;
