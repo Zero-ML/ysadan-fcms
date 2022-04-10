@@ -4,6 +4,9 @@ import dotenv
 import pymongo
 import logging
 from logging.handlers import RotatingFileHandler
+from pathlib import Path
+
+CASEFILES = Path('/casefiles')
 
 # Setup logging
 logger = logging.getLogger("fcms")
